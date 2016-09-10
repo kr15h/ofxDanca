@@ -2,27 +2,40 @@
 
 #include "Camera.h"
 #include "Vision.h"
-
-// TODO: consider SharedData object
+#include "Interface.h"
 
 class ofxDanca {
 	public:
+		ofxDanca(){
+			camera = 0;
+			vision = 0;
+			interface = 0;
+		}
+	
+		ofx::danca::Camera * camera;
+		ofx::danca::Vision * vision;
+		ofx::danca::Interface * interface;
+	
 		void setup(){
-			_camera.setup();
-			_vision.setup(&_camera);
+			camera = new ofx::danca::Camera();
+			camera->setup();
+			
+			vision = new ofx::danca::Vision(camera);
+			vision->setup();
+			
+			interface = new ofx::danca::Interface(vision);
+			interface->setup();
 		}
 	
 		void update(){
-			_camera.update();
-			_vision.update(&_camera);
+			camera->update();
+			vision->update();
+			interface->update();
 		}
 	
 		void draw(){
-			_camera.draw();
-			_vision.draw(&_camera);
+			camera->draw();
+			vision->draw();
+			interface->draw();
 		}
-	
-	private:
-		ofx::danca::Camera _camera;
-		ofx::danca::Vision _vision;
 };
