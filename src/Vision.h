@@ -9,8 +9,9 @@ namespace danca {
 
 class Vision {
     public:
-        Vision(Camera * c){
+        Vision(Camera * c, shared_ptr<SharedData> sd){
 			_camera = c;
+			_sharedData = sd;
 		}
     
         void setup(){
@@ -38,8 +39,8 @@ class Vision {
 			}
 			
 			ofPushMatrix();
-			ofScale((float)ofGetWidth() / (float)SharedData::instance()->cameraWidth,
-				(float)ofGetHeight() / (float)SharedData::instance()->cameraHeight);
+			ofScale((float)ofGetWidth() / (float)_sharedData.get()->cameraWidth,
+				(float)ofGetHeight() / (float)_sharedData.get()->cameraHeight);
 			
 			_contourFinder.draw();
 			
@@ -51,6 +52,7 @@ class Vision {
 		}
 	
 	private:
+		shared_ptr<SharedData> _sharedData;
 		Camera * _camera;
 		ofxCv::ContourFinder _contourFinder;
 };

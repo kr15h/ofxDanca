@@ -8,8 +8,9 @@ namespace danca {
 
 class Interface {
 	public:
-		Interface(Vision * v){
+		Interface(Vision * v, shared_ptr<SharedData> sd){
 			_vision = v;
+			_sharedData = sd;
 		}
 	
 		void setup(){
@@ -34,8 +35,8 @@ class Interface {
 			}
 			
 			ofPushMatrix();
-			ofScale((float)ofGetWidth() / (float)SharedData::instance()->cameraWidth,
-				(float)ofGetHeight() / (float)SharedData::instance()->cameraHeight);
+			ofScale((float)ofGetWidth() / (float)_sharedData.get()->cameraWidth,
+				(float)ofGetHeight() / (float)_sharedData.get()->cameraHeight);
 			
 			ofPushStyle();
 			ofSetLineWidth(3);
@@ -54,6 +55,7 @@ class Interface {
 			ofPopMatrix();
 		}
 	private:
+		shared_ptr<SharedData> _sharedData;
 		Vision * _vision;
 };
 

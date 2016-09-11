@@ -14,7 +14,9 @@ namespace danca {
 
 class Camera {
     public:
-        Camera(){}
+        Camera(shared_ptr<SharedData> sd){
+			_sharedData = sd;
+		}
     
         void setup(){
 			#ifdef TARGET_RASPBERRY_PI
@@ -26,8 +28,8 @@ class Camera {
 				_camera.setDeviceID(0);
 				_camera.setDesiredFrameRate(60);
 				_camera.initGrabber(
-					SharedData::instance()->cameraWidth,
-					SharedData::instance()->cameraHeight);
+					_sharedData.get()->cameraWidth,
+					_sharedData.get()->cameraHeight);
 			#endif
 		}
 	
@@ -62,6 +64,7 @@ class Camera {
         #endif
 	
 		cv::Mat _frame;
+		shared_ptr<SharedData> _sharedData;
 };
 
 } // namespace danca

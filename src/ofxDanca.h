@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Vision.h"
 #include "Interface.h"
+#include "SharedData.h"
 
 class ofxDanca {
 	public:
@@ -17,13 +18,15 @@ class ofxDanca {
 		ofx::danca::Interface * interface;
 	
 		void setup(){
-			camera = new ofx::danca::Camera();
+			shared_ptr<ofx::danca::SharedData> sd = make_shared<ofx::danca::SharedData>();
+		
+			camera = new ofx::danca::Camera(sd);
 			camera->setup();
 			
-			vision = new ofx::danca::Vision(camera);
+			vision = new ofx::danca::Vision(camera, sd);
 			vision->setup();
 			
-			interface = new ofx::danca::Interface(vision);
+			interface = new ofx::danca::Interface(vision, sd);
 			interface->setup();
 		}
 	
