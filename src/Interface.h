@@ -26,13 +26,7 @@ class Interface {
 				return;
 			}
 			
-			std::vector<cv::Point> points =
-				_vision->getContourFinder().getConvexHull(0);
-			ofPolyline polyline;
-			
-			for(unsigned int i = 0; i < points.size(); ++i){
-				polyline.addVertex(points[i].x, points[i].y);
-			}
+			_rect = _vision->getContourFinder().getBoundingRect(0);
 			
 			ofPushMatrix();
 			ofScale((float)ofGetWidth() / (float)_sharedData.get()->cameraWidth,
@@ -40,16 +34,11 @@ class Interface {
 			
 			ofPushStyle();
 			ofSetLineWidth(3);
+			ofNoFill();
 			ofSetColor(255, 255, 0);
-			polyline.setClosed(true);
-			polyline.draw();
-			ofPopStyle();
 			
-			ofPushStyle();
-			ofSetColor(255, 255, 0);
-			for(unsigned int i = 0; i < points.size(); ++i){
-				ofDrawCircle(points[i].x, points[i].y, 2);
-			}
+			ofDrawRectangle(_rect.x, _rect.y, _rect.width, _rect.height);
+			
 			ofPopStyle();
 			
 			ofPopMatrix();
@@ -57,6 +46,7 @@ class Interface {
 	private:
 		shared_ptr<SharedData> _sharedData;
 		Vision * _vision;
+		cv::Rect _rect; // The rectangle being tracked and measured
 };
 
 } // namespace danca
