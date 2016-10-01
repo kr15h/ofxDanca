@@ -24,17 +24,110 @@ class Interface {
 		
 			_rect = _vision->getContourFinder().getBoundingRect(0);
 			
-			// TODO: Transform it to format pixels/sec ?
-			_accelerationTop =
+			// Collect momentary acceleration values of all edges
+			AccelEntry entryTop;
+			entryTop.time = ofGetElapsedTimef();
+			entryTop.acceleration =
 				(float)_rect.y - (float)_prevRect.y;
-			_accelerationRight =
+			_accelTopCollection.push_back(entryTop);
+			
+			AccelEntry entryRight;
+			entryRight.time = ofGetElapsedTimef();
+			entryRight.acceleration =
 				(float)(_rect.x + _rect.width) -
 				(float)(_prevRect.x + _prevRect.width);
-			_accelerationBottom =
+			_accelRightCollection.push_back(entryRight);
+			
+			AccelEntry entryBottom;
+			entryBottom.time = ofGetElapsedTimef();
+			entryBottom.acceleration =
 				(float)(_rect.y + _rect.height) -
 				(float)(_prevRect.y + _prevRect.height);
-			_accelerationLeft =
+			_accelBottomCollection.push_back(entryBottom);
+			
+			AccelEntry entryLeft;
+			entryLeft.time = ofGetElapsedTimef();
+			entryLeft.acceleration =
 				(float)_rect.x - (float)_prevRect.x;
+			_accelLeftCollection.push_back(entryLeft);
+			
+			// Calculate actual acceleration values as pixels per second for each of the edges
+			float sumTop = 0.0f;
+			unsigned int numSamplesTop = 0;
+			for(unsigned int i = 0; i < _accelTopCollection.size(); ++i){
+				if(_accelTopCollection[i].time + 1.0f >= ofGetElapsedTimef()){
+					sumTop += _accelTopCollection[i].acceleration;
+					numSamplesTop += 1;
+				}
+			}
+			_accelerationTop = sumTop / (float)numSamplesTop;
+			
+			float sumRight = 0.0f;
+			unsigned int numSamplesRight = 0;
+			for(unsigned int i = 0; i < _accelRightCollection.size(); ++i){
+				if(_accelRightCollection[i].time + 1.0f >= ofGetElapsedTimef()){
+					sumRight += _accelRightCollection[i].acceleration;
+					numSamplesRight += 1;
+				}
+			}
+			_accelerationRight = sumRight / (float)numSamplesRight;
+			
+			float sumBottom = 0.0f;
+			unsigned int numSamplesBottom = 0;
+			for(unsigned int i = 0; i < _accelBottomCollection.size(); ++i){
+				if(_accelBottomCollection[i].time + 1.0f >= ofGetElapsedTimef()){
+					sumBottom += _accelBottomCollection[i].acceleration;
+					numSamplesBottom += 1;
+				}
+			}
+			_accelerationBottom = sumBottom / (float)numSamplesBottom;
+			
+			float sumLeft = 0.0f;
+			unsigned int numSamplesLeft = 0;
+			for(unsigned int i = 0; i < _accelLeftCollection.size(); ++i){
+				if(_accelLeftCollection[i].time + 1.0f >= ofGetElapsedTimef()){
+					sumLeft += _accelLeftCollection[i].acceleration;
+					numSamplesLeft += 1;
+				}
+			}
+			_accelerationLeft = sumLeft / (float)numSamplesLeft;
+			
+			// Clean up vectors from values that we don't need anymore
+			for(unsigned int i = 0; i < _accelTopCollection.size(); ++i){
+				if(_accelTopCollection[i].time + 1.0f < ofGetElapsedTimef()){
+					_accelTopCollection.erase(_accelTopCollection.begin() + i);
+					if(i > 0){
+						--i;
+					}
+				}
+			}
+			
+			for(unsigned int i = 0; i < _accelRightCollection.size(); ++i){
+				if(_accelRightCollection[i].time + 1.0f < ofGetElapsedTimef()){
+					_accelRightCollection.erase(_accelRightCollection.begin() + i);
+					if(i > 0){
+						--i;
+					}
+				}
+			}
+			
+			for(unsigned int i = 0; i < _accelBottomCollection.size(); ++i){
+				if(_accelBottomCollection[i].time + 1.0f < ofGetElapsedTimef()){
+					_accelBottomCollection.erase(_accelBottomCollection.begin() + i);
+					if(i > 0){
+						--i;
+					}
+				}
+			}
+			
+			for(unsigned int i = 0; i < _accelLeftCollection.size(); ++i){
+				if(_accelLeftCollection[i].time + 1.0f < ofGetElapsedTimef()){
+					_accelLeftCollection.erase(_accelLeftCollection.begin() + i);
+					if(i > 0){
+						--i;
+					}
+				}
+			}
 			
 			_prevRect = _rect;
 		}
@@ -78,12 +171,31 @@ class Interface {
 			ofPopStyle();
 			
 			ofPopMatrix();
+			
+			// Debug vectors
+			stringstream ss;
+			ss << "top samples: " << _accelTopCollection.size() << "\n" <<
+				"right samples: " << _accelRightCollection.size() << "\n" <<
+				"bottom samples: " << _accelBottomCollection.size() << "\n" <<
+				"left samples: " << _accelLeftCollection.size() << "\n";
+			ofDrawBitmapString(ss.str(), 10, 20);
 		}
+	
+		struct AccelEntry {
+			float time;
+			float acceleration;
+		};
+	
 	private:
 		shared_ptr<SharedData> _sharedData;
 		Vision * _vision;
 		cv::Rect _rect; // The rectangle being tracked and measured
 		cv::Rect _prevRect;
+	
+		vector <AccelEntry> _accelTopCollection;
+		vector <AccelEntry> _accelRightCollection;
+		vector <AccelEntry> _accelBottomCollection;
+		vector <AccelEntry> _accelLeftCollection;
 	
 		float _accelerationTop;
 		float _accelerationRight;
