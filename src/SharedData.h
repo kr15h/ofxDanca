@@ -8,10 +8,12 @@ class SharedData {
 		SharedData(){
 			cameraWidth = 480;
 			cameraHeight = 360;
+			rotateCamera = false;
 		}
 	
 		int cameraWidth;
 		int cameraHeight;
+		bool rotateCamera;
 };
 
 } // namespace danca

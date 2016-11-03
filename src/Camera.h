@@ -21,8 +21,8 @@ class Camera {
         void setup(){
 			#ifdef TARGET_RASPBERRY_PI
 				_camera.setup(
-					SharedData::instance()->cameraWidth,
-					SharedData::instance()->cameraHeight,
+					_sharedData.get()->cameraWidth,
+					_sharedData.get()->cameraHeight,
 					false);
 			#else
 				_camera.setDeviceID(0);
@@ -35,7 +35,7 @@ class Camera {
 	
 		void update(){
 			#ifdef TARGET_RASPBERRY_PI
-				if(settings->rotateCamera){
+				if(_sharedData.get()->rotateCamera){
 					_camera.setRotation(180);
 				}else{
 					_camera.setRotation(0);
